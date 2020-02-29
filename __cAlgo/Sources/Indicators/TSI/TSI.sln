@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSI", "TSI\TSI.csproj", "{BBFF772A-BF98-4FFE-B6B0-7AA66654828F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BBFF772A-BF98-4FFE-B6B0-7AA66654828F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBFF772A-BF98-4FFE-B6B0-7AA66654828F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBFF772A-BF98-4FFE-B6B0-7AA66654828F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBFF772A-BF98-4FFE-B6B0-7AA66654828F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,372 @@
+﻿/* 
+=================================================================================================================================================
+SUBJECT      : risk management
+OBJECT TYPE  : cAlgo
+OBJECT NAME  : LTN chickenRun
+CREATED BY   : Harold Delaney
+CREATED ON   : 20180424
+SOURCE       : 
+PREPERATION  : 
+			   
+REMARKS      : 1) using RSI, Momentum, RVI and possibly ATR (average true range) to signal entry and exit points
+               2) 
+               3) 
+
+STRATEGY     :
+CHICKEN RUN USES A COMBINATION OF INDICATORS TO DETERMINE ENTRY AND EXIT POINTS OVER A 15MIN TIMEFRAME.
+* INDICATOR VALUES AS PER BELOW
+* CHANGE IN DIRECTION AND GRADIENT OF CHANGE
+ 
+***************************************************************************************************
+ENTRY ON SHORT (DOWN) -----------------------------------------------------------------------------
+* WHEN CURR DTTM <= ECONOMIC NEWS DTTM - 3HRS
+*  AND RSI > 70 (TEST FOR SMALLER RANGE - EG. 67 MIGHT PROVIDE BETTER REAULTS)
+*  AND RSI <  PREVIOUS RSI (DOWN)
+*  AND RVI <= PREVIOUS RVI (DOWN)
+*  AND CLOSE PRICE > SMA HIGH(14)
+*  AND VOL > 1000
+*  -- OTHER THINGS TO TEST ----------------------
+*  AND MOM > 100 ?????
+*  AND ATR > ?????
+
+EXIT ON SHORT (DOWN) ------------------------------------------------------------------------------
+CONSERVATIVE
+* WHEN RVI > RVISIG (UP)
+AGGRESSIVE
+* WHEN RVI >= PREVIOUS RVI (UP)
+OTHER EXITS
+* WHEN TIME IN TRADE > 2H 45MI (TEST ALSO FOR 3H)
+
+***************************************************************************************************
+ENTRY ON LONG (UP) --------------------------------------------------------------------------------
+* WHEN CURR DTTM <= ECONOMIC NEWS DTTM - 3HRS
+*  AND RSI < 30
+*  AND RSI > PREVIOUS RSI (UP)
+*  AND RVI >= PREVIOUS RVI (UP)
+*  AND CLOSE PRICE < SMA LOW(14)
+*  AND VOL > 1000
+*  -- OTHER THINGS TO TEST ----------------------
+*  AND MOM < 99.77 ?????
+*  AND ATR > ?????
+
+EXIT ON LONG (UP) ---------------------------------------------------------------------------------
+CONSERVATIVE
+* WHEN RVI < RVISIG (DOWN)
+AGGRESSIVE
+* WHEN RVI <= PREVIOUS RSI (DOWN)
+OTHER EXITS
+* WHEN TIME IN TRADE > 2H 45MI (TEST ALSO FOR 3H)
+ 
+
+***************************************************************************************************
+* RVI IS A CUSTOM INDICATOR WITH NO API AVAILABLE
+* FOLLOWING IS LOGIC THAT CAN RECREATE THE RVI VALUES
+
+        protected override void Initialize()
+        {
+            _value1 = CreateDataSeries();
+            _value2 = CreateDataSeries();
+        }
+
+        public override void Calculate(int index)
+        {
+            _value1[index] = ((MarketSeries.Close[index] - MarketSeries.Open[index]) + 2 * (MarketSeries.Close[index - 1] - MarketSeries.Open[index - 1]) + 2 * (MarketSeries.Close[index - 2] - MarketSeries.Open[index - 2]) + (MarketSeries.Close[index - 3] - MarketSeries.Open[index - 3])) / 6;
+
+            _value2[index] = ((MarketSeries.High[index] - MarketSeries.Low[index]) + 2 * (MarketSeries.High[index - 1] - MarketSeries.Low[index - 1]) + 2 * (MarketSeries.High[index - 2] - MarketSeries.Low[index - 2]) + (MarketSeries.High[index - 3] - MarketSeries.Low[index - 3])) / 6;
+
+            double num = 0;
+            double denum = 0;
+            for (int i = 0; i < Period; i++)
+            {
+                num += _value1[index - i];
+                denum += _value2[index - i];
+            }
+
+            Result[index] = num / denum;
+
+            Signal[index] = (Result[index] + 2 * Result[index - 1] + 2 * Result[index - 2] + Result[index - 3]) / 6;
+        }
+
+=================================================================================================================================================
+*/
+#region referenced assemblies =============================================================================
+using System;
+using System.Linq;
+using cAlgo.API;
+using cAlgo.API.Indicators;
+using cAlgo.API.Internals;
+using cAlgo.Indicators;
+using tradeLibrary;
+#endregion
+
+namespace cAlgo
+{
+    // TIMEZONE ATTRIBUTE
+    // ALL DATES AND TIMES WITHIN THE ROBOT OR INDICATOR WILL BE CONVERTED TO THIS TIMEZONE
+    [Robot(TimeZone = TimeZones.UTC, AccessRights = AccessRights.None)]
+    public class LTNchickenRun : Robot
+    {
+        #region USER DEFINED PARAMATERS ===================================================================
+        // INSTANCE & TRADE PARAMS ================================================================
+        [Parameter("Instance Name", DefaultValue = "001")]
+        public string InstanceName { get; set; }
+
+        [Parameter("Lot Size", DefaultValue = 0.1, Step = 0.01, MinValue = 0.01)]
+        public double LotSize { get; set; }
+
+        [Parameter("Account Bal. Risk (%)", DefaultValue = 2.0, MinValue = 0.5, MaxValue = 5.0, Step = 0.1)]
+        public double AccountRisk { get; set; }
+
+        [Parameter("Allow Multiple Trades", DefaultValue = false)]
+        public bool AllowMultipleTrades { get; set; }
+
+        // EMAIL PARAMATERS =======================================================================
+        [Parameter("From Email", DefaultValue = "lanoitan17@gmail.com")]
+        public String FromEmail { get; set; }
+
+        [Parameter("To Email", DefaultValue = "toshach@gmail.com")]
+        public String ToEmail { get; set; }
+
+        // INDICATOR PARAMATERS ===================================================================
+        // RSI ----------------------------------
+        [Parameter("RSI Period", DefaultValue = 14, MinValue = 1)]
+        public int RSIPeriod { get; set; }
+
+        [Parameter("RSI LOW Level", DefaultValue = 30, MaxValue = 40, MinValue = 1)]
+        public int RSILowLevel { get; set; }
+
+        [Parameter("RSI HIGH Level", DefaultValue = 70, MaxValue = 99, MinValue = 60)]
+        public int RSIHighLevel { get; set; }
+
+        [Parameter("RSI Source")]
+        public DataSeries RSISource { get; set; }
+
+        // SMA ----------------------------------
+        [Parameter("HIGH SMA Period", DefaultValue = 14, MinValue = 1)]
+        public int HighSMAPeriod { get; set; }
+
+        [Parameter("HIGH SMA Source")]
+        public DataSeries HighSMASource { get; set; }
+        
+        [Parameter("LOW SMA Period", DefaultValue = 14, MinValue = 1)]
+        public int LowSMAPeriod { get; set; }
+        
+        [Parameter("LOW SMA Source")]
+        public DataSeries LowSMASource { get; set; }
+        
+        // MOM ----------------------------------
+        [Parameter("MOM Period", DefaultValue = 14, MinValue = 1)]
+        public int MOMPeriod { get; set; }
+
+        [Parameter("MOM Source")]
+        public DataSeries MOMSource { get; set; }
+
+        // RVI ----------------------------------
+        [Parameter("RVI Period", DefaultValue = 10, MinValue = 1)]
+        public int RVIPeriod { get; set; }
+
+        // ATR ----------------------------------
+        [Parameter("ATR Period", DefaultValue = 10, MinValue = 1)]
+        public int ATRPeriod { get; set; }
+
+        [Parameter("ATR Multiplier", DefaultValue = 2, MinValue = 1)]
+        public int ATRMultiplier { get; set; }
+
+        // VOLUME ------------------------------
+        [Parameter("Volume Size", DefaultValue = 1000, MinValue = 1)]
+        public int VOLSize { get; set; }
+
+        // TRAILING STOP PARAMS ===================================================================
+        [Parameter("Include Trailing Stop", DefaultValue = true)]
+        public bool IncludeTrailingStop { get; set; }
+
+        [Parameter("Trailing Stop Trigger (pips)", DefaultValue = 20)]
+        public int TrailingStopTrigger { get; set; }
+
+        [Parameter("Trailing Stop Step (pips)", DefaultValue = 10)]
+        public int TrailingStopStep { get; set; }
+
+        // BREAK EVEN PARAMS ======================================================================
+        [Parameter("Include Break Eve-Even", DefaultValue = false)]
+        public bool IncludeBreakEven { get; set; }
+
+        [Parameter("Break-Even Trigger (pips)", DefaultValue = 10, MinValue = 1)]
+        public int BreakEvenPips { get; set; }
+
+        [Parameter("Break-Even Extra (pips)", DefaultValue = 2, MinValue = 1)]
+        public int BreakEvenExtraPips { get; set; }
+        
+        // EVENT MANAGEMENT =======================================================================
+        [Parameter("Calculate OnBar", DefaultValue = false)]
+        public bool CalculateOnBar { get; set; }
+
+        #endregion
+
+        #region PRIVATE INDICATOR DECLARATIONS ============================================================
+        private RelativeStrengthIndex _rsi { get; set; }
+        
+        private SimpleMovingAverage _smaHIGH { get; set; }
+        private SimpleMovingAverage _smaLOW { get; set; }
+
+        private MomentumOscillator _mom { get; set; }
+
+        private AverageTrueRange _atr { get; set; }
+
+        private MarketDepth _md { get; set; } 
+
+        private DateTime _tradingTime { get; set; }
+
+        private TradeManager _tradeMgr;
+        private double _slPips;
+        private long _tradeVol;
+        #endregion
+
+        #region cTRADER EVENTS ============================================================================
+
+        /// <summary>
+        /// CALLED WHEN THE ROBOT FIRST STARTS, IT IS ONLY CALLED ONCE.
+        /// </summary>
+        protected override void OnStart()
+        {
+            // CONSTRUCT THE INDICATORS
+            _rsi = Indicators.RelativeStrengthIndex (RSISource, RSIPeriod);
+
+            _smaHIGH = Indicators.SimpleMovingAverage(HighSMASource, HighSMAPeriod);
+            _smaLOW = Indicators.SimpleMovingAverage(LowSMASource, LowSMAPeriod);
+
+            _mom = Indicators.MomentumOscillator(MOMSource, MOMPeriod);
+
+            _atr = Indicators.AverageTrueRange(ATRPeriod, MovingAverageType.Simple);
+
+            _md = MarketData.GetMarketDepth(Symbol);
+
+            _tradeMgr = new TradeManager(this);
+            _slPips = (_atr.Result.Last(1) * ATRMultiplier) / Symbol.PipSize;
+            _tradeVol = _tradeMgr.GetTradeVolumeFromAccountRisk(_slPips, AccountRisk);
+
+        }
+
+        protected override void OnTick()
+        {
+            // ONLY RUN LOGIC IF PARAMATER CalculateOnBar IS SET FALSE (EG. WE WANT TO MANAGE POSITIONS ON THE TICK EVENT)
+            if (CalculateOnBar)
+            {
+                return;
+            }
+
+            ManagePositions();
+        }
+
+        protected override void OnBar()
+        {
+            // ONLY RUN LOGIC IF PARAMATER CalculateOnBar IS SET TRUE (EG. WE WANT TO MANAGE POSITIONS ON THE BAR CLOSE EVENT)
+            if (!CalculateOnBar)
+            {
+                return;
+            }
+
+            ManagePositions();
+        }
+
+        protected override void OnStop()
+        {
+            // Put your deinitialization logic here
+        }
+        #endregion
+
+        #region POSITION MANAGEMENT =======================================================================
+        private void ManagePositions()
+        {
+            // INITIALISE ELEMENTS ONBAR CLOSE
+            // INDEX: 0 - CURRENT LIVE BAR (NOT FINALISED)
+            //        1 - MOST RECENT FINALISED CLOSE BAR
+            //        2 - 2ND MOST RECENT FINALISED CLOSE BAR
+            var _rsi_curr = _rsi.Result.Last(1);
+            var _rsi_prev = _rsi.Result.Last(2);
+            var _sma_high_curr = _smaHIGH.Result.Last(1);
+            var _sma_low_curr = _smaLOW.Result.Last(1);
+            var _price_curr = MarketSeries.Close.Last(1);
+
+
+            /// SELL LOGIC - ENTRY ON SHORT
+            if (_rsi_curr > RSIHighLevel && _rsi_curr < _rsi_prev && _price_curr > _sma_high_curr) // && _volume > VOLSize - need to add VOLUME logic // also need to add the RVI component.  Once built, this needs updating
+            {
+                /// MAINTAINS ONLY 1 TRADE OPEN AT ANY GIVEN TIME
+                /// CHECKS IF A BUY POSITION IS OPEN
+                /// - IF NOT - OPEN BUY POSITION AND CLOSE SELL POSITION
+                /// - IF YES - CLOSE SELL POSITION 
+                /// ?????  DO WE WANT TO HAVE MULTIPLE TRADES OPEN AT A TIME?  
+                /// ?????  IN THIS CASE, I THINK NOT.  IF WE ARE ENTERING A SELL MARKET, THE BUY HAS GONE COLD (INDICATORS HAVE TURNED) AND SHOULD BE CLOSED
+                if (!IsPositionOpenByType(TradeType.Buy))
+                {
+                    OpenPosition(TradeType.Buy);
+                }
+
+                ClosePosition(TradeType.Sell);
+            }
+
+            // BUY LOGIC - ENTRY ON LONG
+            if (_rsi_curr < RSILowLevel && _rsi_curr > _rsi_prev && _price_curr < _sma_low_curr) // && _volume > VOLSize - need to add VOLUME logic // also need to add the RVI component.  Once built, this needs updating
+            {
+                /// MAINTAINS ONLY 1 TRADE OPEN AT ANY GIVEN TIME
+                /// CHECKS IF A SELL POSITION IS OPEN
+                /// - IF NOT - OPEN SELL POSITION AND CLOSE BUY POSITION
+                /// - IF YES - CLOSE BUY POSITION 
+                /// ?????  DO WE WANT TO HAVE MULTIPLE TRADES OPEN AT A TIME?  
+                /// ?????  IN THIS CASE, I THINK NOT.  IF WE ARE ENTERING A BUY MARKET, THE SELL HAS GONE COLD (INDICATORS HAVE TURNED) AND SHOULD BE CLOSED
+                if (!IsPositionOpenByType(TradeType.Sell))
+                {
+                    OpenPosition(TradeType.Sell);
+                }
+
+                ClosePosition(TradeType.Buy);
+            }
+        }
+
+        /// <summary>
+        /// OPENS A NEW POSITION BASED ON type PASSED IN
+        /// EG. IF "BUY" IS PASSED IN AS TYPE, THEN A BUY ORDER IS EXECUTED
+        /// </summary>
+        /// <param name="type"></param>
+        private void OpenPosition(TradeType type)
+        {
+            // CALCULATE VOLUME FROM LOT SIZE
+            // ????? LOOK AT CHANGING THIS FROM A STRAIGHT LOT SIZE CALCULATION TO A % OF EQUITY OR BALANCE CALCULATION
+            //long volume = Symbol.QuantityToVolume(LotSize);
+
+            ExecuteMarketOrder(type, this.Symbol, _tradeVol, InstanceName, null, null); // null, null REFERS TO SL AND TP - NOT REQUIRED AS RISK MANAGEMENT IS HANDLED BY THE EXIT STRATEGIES LISTED
+        }
+
+        /// <summary>
+        /// CLOSES ANY POSITION BASED ON THE Symbol AND type PASSED IN
+        /// </summary>
+        /// <param name="type"></param>
+        private void ClosePosition(TradeType type)
+        {
+            var p = Positions.Find(InstanceName, this.Symbol, type);
+
+            if (p != null)
+            {
+                ClosePosition(p);
+            }
+        }
+
+        #endregion
+
+        #region POSITION INFORMATION ======================================================================
+        private bool IsPositionOpenByType(TradeType type)
+        {
+            var p = Positions.FindAll(InstanceName, Symbol, type);
+
+            if (p.Count() >= 1)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+    }
+}

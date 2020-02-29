@@ -1,0 +1,28 @@
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\LTN chickenRun.dll
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\LTN chickenRun.pdb
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\LTN chickenRun.dll.CodeAnalysisLog.xml
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\LTN chickenRun.dll.lastcodeanalysissucceeded
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\cAlgo.API.dll
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\tradeLibrary.dll
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\cAlgo.API.xml
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\tradeLibrary.pdb
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.csprojResolveAssemblyReference.cache
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.csproj.CoreCompileInputs.cache
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.csproj.CopyComplete
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.dll
+C:\Users\tosha\Documents\cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.pdb
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\LTN chickenRun.dll
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\LTN chickenRun.pdb
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\LTN chickenRun.dll.CodeAnalysisLog.xml
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\LTN chickenRun.dll.lastcodeanalysissucceeded
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\cAlgo.API.dll
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\Relative Vigor Index.dll
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\tradeLibrary.dll
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\Relative Vigor Index.pdb
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\cAlgo.API.xml
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\bin\Debug\tradeLibrary.pdb
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.csprojAssemblyReference.cache
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.csproj.CoreCompileInputs.cache
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.csproj.CopyComplete
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.dll
+D:\Sync\__algoTrader_dev\__algoTrader\__scripts\__cAlgo\Sources\Robots\LTN chickenRun\LTN chickenRun\obj\Debug\LTN chickenRun.pdb
